@@ -1,0 +1,40 @@
+name: Delete Preview environment
+
+on:
+  # pull_request_target is granted a RW Access token allowing for commenting on a PR
+  pull_request_target:
+    types: [ closed ]
+
+jobs:
+  delete-preview-env:
+    runs-on: ubuntu-latest
+    env:
+      HUMANITEC_ORG: chris-test-org
+      APP_ID: test-pr
+      BASE_ENV_ID: development
+      HUMANITEC_TOKEN: ${{ secrets.HUMANITEC_TOKEN }}
+
+    steps:
+      # checkout the supporting script
+      - uses: actions/checkout@v2
+      - uses: actions/github-script@v4
+        with:
+          script: |
+            const humanitec = require('./.github/js/humanitec.js');
+            const {HUMANITEC_ORG, APP_ID} = process.env;
+            const ENV_ID = `${context.repo.repo}-${context.issue.number}`;
+            const ENV_PATH = `/orgs/${HUMANITEC_ORG}/apps/${APP_ID}/envs/${ENV_ID}`;
+
+            const status = await humanitec.deleteEnvironment(APP_ID, ENV_ID);
+
+            if (status.status > 400) {
+              core.error(`Cannot delete preview environment: ${JSON.stringify(env.body)}`);
+              return;
+            }
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Preview environment deleted.`
+            });
