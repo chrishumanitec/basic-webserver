@@ -28,7 +28,7 @@ jobs:
             const status = await humanitec.deleteEnvironment(APP_ID, ENV_ID);
 
             if (status.status > 400) {
-              core.error(`Cannot delete preview environment: ${JSON.stringify(env.body)}`);
+              core.error(`Cannot delete preview environment: ${JSON.stringify(status.body)}`);
               return;
             }
 

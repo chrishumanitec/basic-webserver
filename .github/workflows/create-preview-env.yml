@@ -25,7 +25,7 @@ jobs:
             const ENV_ID = `${context.repo.repo}-${context.issue.number}`;
             const ENV_PATH = `/orgs/${HUMANITEC_ORG}/apps/${APP_ID}/envs/${ENV_ID}`;
             const IMAGE_ID = context.repo.repo;
-            const BRANCH_NAME = context.ref.replace('refs/heads/', '');
+            const BRANCH_NAME = context.payload.pull_request.head.ref;
 
             const env = await humanitec.cloneEnvironment(APP_ID, BASE_ENV_ID, ENV_ID);
 
